@@ -7,7 +7,6 @@
     margin: 100px auto 0px auto;
     display: flex;
     flex-direction: column;
-    background-color: rgb(250, 234, 61);
 }
 
 .board-row{
