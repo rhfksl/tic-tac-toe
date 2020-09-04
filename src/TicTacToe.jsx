@@ -1,10 +1,9 @@
 import React from "react";
 import Board from "./Board";
 import HistoryButtons from "./HistoryButtons";
+import isWinner from "./functions";
 import "./TicTacToe.css";
 var _ = require("lodash");
-
-console.log("this is Board", Board);
 
 class TicTacToe extends React.Component {
   constructor(props) {
@@ -16,41 +15,21 @@ class TicTacToe extends React.Component {
     };
   }
 
-  isWinner(board) {
-    const winCase = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-    for (let i = 0; i < winCase.length; i++) {
-      const [a, b, c] = winCase[i];
-      if (board[a] && board[a] === board[b] && board[b] === board[c]) {
-        return board[a];
-      }
-    }
-    return null;
-  }
-
   clickBoard(number) {
     const cloneHistories = _.cloneDeep(this.state.histories);
     const curBoard = _.clone(cloneHistories[this.state.step]);
 
-    if (this.isWinner(curBoard)) {
-      console.log("winner exists");
-      return;
-    }
     if (curBoard[number]) {
       console.log("you already clicked this square");
       return;
     }
 
-    curBoard[number] = this.state.isNextX ? "X" : "O";
+    if (isWinner(curBoard)) {
+      console.log("winner exists");
+      return;
+    }
 
+    curBoard[number] = this.state.isNextX ? "X" : "O";
     this.setState({
       histories: [...cloneHistories, curBoard],
       isNextX: !this.state.isNextX,
@@ -72,13 +51,13 @@ class TicTacToe extends React.Component {
 
   render() {
     const curBoard = this.state.histories[this.state.step];
-    const isWinner = this.isWinner(curBoard);
+    const winner = isWinner(curBoard);
 
     return (
       <div id="game-main">
         <Board curBoard={curBoard} clickBoard={(i) => this.clickBoard(i)} />
         <div className="info">
-          {isWinner ? `winner is ${isWinner}` : "Tic-Tac-Toe"}
+          {winner ? `winner is ${winner}` : "Tic-Tac-Toe"}
           <HistoryButtons histories={this.state.histories} jumpHistory={(step) => this.jumpHistory(step)} />
         </div>
       </div>

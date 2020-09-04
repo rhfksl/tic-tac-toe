@@ -1,5 +1,4 @@
 // test 함수 모듈용
-
 function isWinner(board) {
   const winCase = [
     [0, 1, 2],
@@ -20,4 +19,5 @@ function isWinner(board) {
   return null;
 }
 
+// module.exports = { isWinner: isWinner };
 export default isWinner;
