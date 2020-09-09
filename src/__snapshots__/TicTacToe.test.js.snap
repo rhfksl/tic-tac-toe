@@ -1,0 +1,100 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snapshot Check check snapshot and TicTacToe component 1`] = `
+<div
+  id="game-main"
+>
+  <div>
+    <input
+      id="create-board"
+      type="text"
+    />
+    <input
+      onClick={[Function]}
+      type="submit"
+      value="board 생성"
+    />
+  </div>
+  <div
+    className="board"
+  >
+    <div
+      className="board-row"
+    >
+      <button
+        className="square"
+        onClick={[Function]}
+      />
+      <button
+        className="square"
+        onClick={[Function]}
+      />
+      <button
+        className="square"
+        onClick={[Function]}
+      />
+    </div>
+    <div
+      className="board-row"
+    >
+      <button
+        className="square"
+        onClick={[Function]}
+      />
+      <button
+        className="square"
+        onClick={[Function]}
+      />
+      <button
+        className="square"
+        onClick={[Function]}
+      />
+    </div>
+    <div
+      className="board-row"
+    >
+      <button
+        className="square"
+        onClick={[Function]}
+      />
+      <button
+        className="square"
+        onClick={[Function]}
+      />
+      <button
+        className="square"
+        onClick={[Function]}
+      />
+    </div>
+  </div>
+  <div
+    className="info"
+  >
+    Tic-Tac-Toe
+    <div
+      className="history"
+    >
+      Jump to history
+      <div
+        className="history-button-box"
+      >
+        <button
+          onClick={[Function]}
+        >
+          game start
+        </button>
+      </div>
+    </div>
+  </div>
+  <button
+    onClick={[Function]}
+  >
+    Play
+  </button>
+  <button
+    onClick={[Function]}
+  >
+    Stop
+  </button>
+</div>
+`;
