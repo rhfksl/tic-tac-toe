@@ -1,13 +1,12 @@
-// test 함수 모듈용
 type Board = (string | null)[][];
 
-interface TraverseOneLine{
+interface Traverse{
   (board: Board, len: number): null | string;
 }
 
-function isWinner(board: Board): null | string {
+function isWinner (board: Board): null | string{
   // traverse row
-    const traverseRow: TraverseOneLine = function (board , len) {
+    const traverseRow: Traverse = function (board, len) {
     for (let row = 0; row < len; row++) {
       let col = 0;
       while (board[row][0]) {
@@ -25,7 +24,7 @@ function isWinner(board: Board): null | string {
     return null;
   }
   // check col values
-  const traverseCol: TraverseOneLine = function(board, len) {
+  const traverseCol: Traverse = function(board, len) {
     for (let col = 0; col < len; col++) {
       let row = 0;
       while (board[0][col]) {
@@ -42,7 +41,7 @@ function isWinner(board: Board): null | string {
     }
     return null;
   }
-  const traverseClockwiseDiagonal: TraverseOneLine = function (board, len) {
+  const traverseClockwiseDiagonal: Traverse = function (board, len) {
     let row = 0;
     let col = 0;
 
@@ -60,7 +59,7 @@ function isWinner(board: Board): null | string {
     }
     return null;
   }
-  const traverseCounterclockwiseDiagonal: TraverseOneLine = function(board, len) {
+  const traverseCounterclockwiseDiagonal: Traverse = function(board, len) {
     let row = 0;
     let col = len - 1;
 
@@ -80,10 +79,12 @@ function isWinner(board: Board): null | string {
     return null;
   }
 
-  let helpers = [traverseRow, traverseCol, traverseClockwiseDiagonal, traverseCounterclockwiseDiagonal];
+  let helpers: Traverse[] = [traverseRow, traverseCol, traverseClockwiseDiagonal, traverseCounterclockwiseDiagonal];
   for (let i = 0; i < helpers.length; i++) {
-    let winner = helpers[i](board, board.length);
-    if (winner) {
+    let winner: string | null = helpers[i](board, board.length);
+    if (winner === 'O' || winner === 'X') {
+    console.log('asdf this is winner', winner);
+
       return winner;
     }
   }

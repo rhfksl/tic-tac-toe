@@ -1,15 +1,12 @@
 import React from "react";
+import  { HistoryButtonsProps } from './Interface/Interface';
 
-interface Props{
-  histories: (string|null)[][][];
-  jumpHistory(step: number): void;
-}
 
-class HistoryButtons extends React.Component<Props> {
-  render() {
-    const historyButtons = this.props.histories.map((_, step) => {
+class HistoryButtons extends React.Component<HistoryButtonsProps> {
+  render(): JSX.Element {
+    const historyButtons: JSX.Element[] = this.props.histories.map((_, step) => {
       return (
-        <button key={step} onClick={() => this.props.jumpHistory(step)}>
+        <button key={step} onClick={this.props.jumpHistory.bind(this, step)}>
           {step === 0 ? "game start" : `go to ${step} step`}
         </button>
       );

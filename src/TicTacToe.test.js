@@ -6,9 +6,10 @@ import TicTacToe from "./TicTacToe";
 import Board from "./Board";
 import HistoryButtons from "./HistoryButtons";
 
-import Enzyme from "enzyme";
+import Enzyme, { shallow, mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
-import { shallow, mount } from "enzyme";
+
+// import { TicTacToeStates } from './Interface/Interface';
 
 Enzyme.configure({ adapter: new Adapter() });
 

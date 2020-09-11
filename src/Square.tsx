@@ -1,28 +1,23 @@
 import React from "react";
 import shortid from "shortid";
+import { SquareProps } from './Interface/Interface';
 
-
-interface Props{
-  clickBoard(step: number): void;
-  curBoard: (string|null)[];
-  rowIdx: number;
-}
-
-class Square extends React.Component<Props> {
+class Square extends React.Component<SquareProps> {
   // currentBoard, stepArr 받아서 해당 값 표시
-  makeSquare(curBoard: (string|null)[], rowIdx: number) {
-    return curBoard.map((val, idx) => {
+  makeSquare(row: (string|null)[], rowIdx: number): JSX.Element[] {
+    return row.map((val: null | string, idx: number) => {
       return (
-        <button key={shortid.generate()} className="square" onClick={this.props.clickBoard.bind(this, idx + rowIdx * curBoard.length)}>
+        <button key={shortid.generate()} className="square" onClick={this.props.clickBoard.bind(this, idx + rowIdx * row.length)}>
           {val}
         </button>
       );
     });
   }
 
-  render() {
-    return <div className="board-row">{this.makeSquare(this.props.curBoard, this.props.rowIdx)}</div>;
+  render(): JSX.Element {
+    return <div className="board-row">{this.makeSquare(this.props.row, this.props.rowIdx)}</div>;
   }
 }
 
 export default Square;
+

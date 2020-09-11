@@ -1,18 +1,14 @@
 import React from "react";
 import Square from "./Square";
 import shortid from "shortid";
+import { BoardProps } from './Interface/Interface';
 
-interface Props{
-  clickBoard(step: number): void;
-  curBoard: (string|null)[][];
-}
-
-class Board extends React.Component<Props> {
-  render() {
+class Board extends React.Component<BoardProps> {
+  render(): JSX.Element {
     return (
       <div className="board">
         {this.props.curBoard.map((row, rowIdx) => {
-          return <Square key={shortid.generate()} curBoard={row} rowIdx={rowIdx} clickBoard={this.props.clickBoard} />;
+          return <Square key={shortid.generate()} row={row} rowIdx={rowIdx} clickBoard={this.props.clickBoard} />;
         })}
       </div>
     );
