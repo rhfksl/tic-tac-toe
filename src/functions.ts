@@ -1,94 +1,105 @@
 type Board = (string | null)[][];
 
 interface Traverse{
-  (board: Board, len: number): null | string;
+  (board: Board, row: number, col: number, otherUser: string): null | string;
 }
 
-function isWinner (board: Board): null | string{
+export function isWinner (board: Board, row: number, col: number, otherUser: string): null | string{
   // traverse row
-    const traverseRow: Traverse = function (board, len) {
-    for (let row = 0; row < len; row++) {
-      let col = 0;
-      while (board[row][0]) {
-        if (board[row][0] === board[row][col]) {
-          if (col === len - 1) {
-            return board[row][col];
-          } else {
-            col++;
-          }
-        } else {
-          break;
+    const traverseRow = function (board: Board, row: number, col: number, otherUser: string): null | string {
+      for(let i = 0; i < board.length; i++){
+        if(!board[row][i] || board[row][i]=== '#' || board[row][i] === otherUser){
+          return null;
         }
       }
+    return otherUser === 'X' ? 'O' : 'X';
+  }
+  // check col
+  const traverseCol = function(board: Board, row: number, col: number, otherUser: string): null | string {
+    for(let i = 0 ; i< board.length; i++){
+      if(!board[i][col] || board[i][col]=== '#' || board[i][col] === otherUser){
+        return null;
+      }
+    }
+    return otherUser === 'X' ? 'O' : 'X';
+  }
+  
+  const traverseClockwiseDiagonal = function (board: Board, row: number, col: number, otherUser: string): null | string {
+    
+    if(row === col){
+      for(let i = 0; i < board.length; i++){
+        const boardVal: null | string = board[i][i];
+        if(!boardVal || boardVal === otherUser || boardVal === '#'){
+          return null;
+        }
+      }
+      return otherUser === 'X' ? 'O' : 'X';
     }
     return null;
   }
-  // check col values
-  const traverseCol: Traverse = function(board, len) {
-    for (let col = 0; col < len; col++) {
-      let row = 0;
-      while (board[0][col]) {
-        if (board[0][col] === board[row][col]) {
-          if (row === len - 1) {
-            return board[row][col];
-          } else {
-            row++;
-          }
-        } else {
-          break;
+  const traverseCounterclockwiseDiagonal = function(board: Board, row: number, col: number, otherUser: string): null | string {
+    if(row === board.length - 1 - col){
+      for(let i = 0; i < board.length; i++){
+        const boardVal: null | string = board[i][board.length - 1 - i];
+        if(!boardVal || boardVal === otherUser || boardVal === '#'){
+          return null;
         }
       }
-    }
-    return null;
-  }
-  const traverseClockwiseDiagonal: Traverse = function (board, len) {
-    let row = 0;
-    let col = 0;
-
-    while (board[0][0]) {
-      if (board[0][0] === board[row][col]) {
-        if (row === len - 1) {
-          return board[row][col];
-        } else {
-          row++;
-          col++;
-        }
-      } else {
-        break;
-      }
-    }
-    return null;
-  }
-  const traverseCounterclockwiseDiagonal: Traverse = function(board, len) {
-    let row = 0;
-    let col = len - 1;
-
-    // check firstVal in while loop
-    while (board[0][len - 1]) {
-      if (board[0][len - 1] === board[row][col]) {
-        if (row === len - 1) {
-          return board[row][col];
-        } else {
-          row++;
-          col--;
-        }
-      } else {
-        break;
-      }
+      return otherUser === 'X' ? 'O' : 'X';
     }
     return null;
   }
 
   let helpers: Traverse[] = [traverseRow, traverseCol, traverseClockwiseDiagonal, traverseCounterclockwiseDiagonal];
+  
   for (let i = 0; i < helpers.length; i++) {
-    let winner: string | null = helpers[i](board, board.length);
+    let winner: string | null = helpers[i](board, row, col, otherUser);
     if (winner === 'O' || winner === 'X') {
-    console.log('asdf this is winner', winner);
-
       return winner;
     }
   }
   return null;
 }
 
-export default isWinner;
+export function isThisWinnerSpot(board: Board, row: number, col: number, otherUser: string){
+  if(traverseRow(board, row, otherUser) || traverseCol(board, col, otherUser) || traverseClockwiseDiagonal(board, row, col, otherUser) || traverseCounterclockwiseDiagonal(board, row, col, otherUser)){
+    return true;
+  } return false;
+}
+
+function traverseRow(board: any, row: any, otherUser: any): boolean{
+  if(board[row].includes(otherUser)){
+    return false;
+  } 
+  return true;
+}
+function traverseCol(board: any, col: any, otherUser: any): boolean{
+  for(let i = 0; i < board.length; i++){
+    if(board[i][col] === otherUser){
+      return false;
+    }
+  }
+  return true;
+}
+function traverseClockwiseDiagonal(board: any, row: any, col: any, otherUser: any): boolean{
+  if(row === col){
+    for(let i = 0; i < board.length; i++){
+      if(board[i][i] === otherUser){
+        return false;
+      }
+    }
+    return true;
+  }
+  return false;
+}
+function traverseCounterclockwiseDiagonal(board: any, row: any, col: any, otherUser: any): boolean{
+  if(row === col){
+    for(let i = 0; i < board.length; i++){
+      if(board[i][board.length - 1 - i] === otherUser){
+        return false;
+      }
+    }
+    return true;
+  }
+  return false;
+}

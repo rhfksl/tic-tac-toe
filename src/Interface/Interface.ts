@@ -7,7 +7,7 @@ export interface TicTacToeStates{
   isNextX: boolean;
   step: number;
   playHistories: boolean;
-  winnerBoard: (null | string)[][];
+  winner: null | string;
 }
 
 export interface HistoryButtonsProps{

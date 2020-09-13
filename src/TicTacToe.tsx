@@ -1,68 +1,27 @@
 import React from "react";
 import Board from "./Board";
 import HistoryButtons from "./HistoryButtons";
-import isWinner from "./functions";
+import { isWinner, isThisWinnerSpot } from "./functions";
 import { TicTacToeStates, CurBoard, Histories } from './Interface/Interface';
 import "./TicTacToe.css";
 import _ from "lodash";
 
-function isThisWinnerSpot(board: CurBoard, row: number, col: number, otherUser: string){
-  if(traverseRow(board, row, otherUser) || traverseCol(board, col, otherUser) || traverseClockwiseDiagonal(board, row, col, otherUser) || traverseCounterclockwiseDiagonal(board, row, col, otherUser)){
-    return true;
-  } return false;
-}
-
-function traverseRow(board: any, row: any, otherUser: any): boolean{
-  if(board[row].includes(otherUser)){
-    return false;
-  } 
-  return true;
-}
-function traverseCol(board: any, col: any, otherUser: any): boolean{
-  for(let i = 0; i < board.length; i++){
-    if(board[i][col] === otherUser){
-      return false;
-    }
-  }
-  return true;
-}
-function traverseClockwiseDiagonal(board: any, row: any, col: any, otherUser: any): boolean{
-  if(row === col){
-    for(let i = 0; i < board.length; i++){
-      if(board[i][i] === otherUser){
-        return false;
-      }
-    }
-    return true;
-  }
-  return false;
-}
-function traverseCounterclockwiseDiagonal(board: any, row: any, col: any, otherUser: any): boolean{
-  if(row === col){
-    for(let i = 0; i < board.length; i++){
-      if(board[i][board.length - 1 - i] === otherUser){
-        return false;
-      }
-    }
-    return true;
-  }
-  return false;
-}
 
 class TicTacToe extends React.Component<{}, TicTacToeStates> {
+  private textInput: React.RefObject<HTMLInputElement>;
   constructor(props: {}) {
     super(props);
     this.state = {
       histories: [ [Array(3).fill('#'), Array(3).fill('#'), Array(3).fill('#')] ],
-      winnerBoard: [Array(3).fill(null), Array(3).fill(null), Array(3).fill(null)] ,
       isNextX: true,
       step: 0,
       playHistories: true,
+      winner: null,
     };
+    this.textInput = React.createRef();
   }
 
-  calculateWinnerPosition(board: any, otherUser: any): any{
-    board = _.cloneDeep(board);
+  calculateWinnerPosition(board: CurBoard, otherUser: string): void{
     for(let i = 0; i < board.length; i++){
       for(let j = 0; j < board.length; j++){
         if(!board[i][j] || board[i][j] === '#'){
@@ -80,37 +39,39 @@ class TicTacToe extends React.Component<{}, TicTacToeStates> {
       isNextX: !this.state.isNextX,
       step: this.state.step + 1,
     });
-    // console.log('this is other board', board);
   }
 
   clickBoard (number: number): void {
+    
+    if(this.state.winner){
+      console.log('already winner exists');
+      return;
+    }
+
     const cloneHistories: Histories = _.cloneDeep(this.state.histories).slice(0, this.state.step + 1);
     const curBoard: CurBoard = _.cloneDeep(cloneHistories[this.state.step]);
     const leng: number = curBoard.length;
     const row: number = parseInt(String(number / leng));
     const col: number = number % leng;
+    
 
     if (curBoard[row][col] === 'O' || curBoard[row][col] === 'X') {
       console.log("you already clicked this square");
       return;
     }
 
-    if (isWinner(curBoard)) {
-      console.log("winner exists");
-      return;
-    }
-
     curBoard[row][col] = this.state.isNextX ? "X" : "O";
 
-    const otherUser: string = this.state.isNextX ? "X" : "O";
-    this.calculateWinnerPosition(curBoard, otherUser);
-    
+    const curUser: string = this.state.isNextX ? "X" : 'O';
+    const otherUser: string = this.state.isNextX ? "O" : "X";
+    const winner: string | null = isWinner(curBoard, row, col, otherUser);
 
-    // this.setState({
-    //   histories: [...cloneHistories, curBoard],
-    //   isNextX: !this.state.isNextX,
-    //   step: this.state.step + 1,
-    // });
+    if (winner) {
+      this.setState({histories: [...cloneHistories, curBoard], winner: winner, step: this.state.step + 1,});
+      return;
+    }
+    // guess # position
+    this.calculateWinnerPosition(curBoard, curUser);
   }
 
   jumpHistory(step: number): void {
@@ -145,46 +106,37 @@ class TicTacToe extends React.Component<{}, TicTacToeStates> {
     this.setState({ playHistories: false });
   }
 
-  createBoard(e: any): void {
-
-    // ref를 쓰거나
-
-    const inputValue: number = Number((document.getElementById("create-board") as HTMLInputElement).value);
-    
-
+  createBoard(): void {
+    const inputValue: number | undefined = Number(this.textInput.current?.value);
     let leng: number;
-    if (isNaN(inputValue) || inputValue === 0) {
-      leng = 3;
+
+    if(!inputValue || isNaN(inputValue)){
+      alert('알맞은 숫자를 입력해 주십시오');
+      return;
     }else{
       leng = inputValue;
     }
-    const newBoard: null[][] = [];
+
+    const newBoard: string[][] = [];
     for (let i = 0; i < leng; i++) {
-      newBoard.push(Array(leng).fill(null));
+      newBoard.push(Array(leng).fill('#'));
     }
     this.setState({ histories: [newBoard], step: 0, isNextX: true });
-
-// length가 1이면 아무것도 없고
-// length가 2 이상인데, step === length라면 < 버튼 생성
-// length가 2 이상인데, step === 0이라면 > 버튼 생성
-// length가 2 이상이라면  <> 버튼 생성
-
   }
 
   
 
   render(): JSX.Element {
     const curBoard: CurBoard = this.state.histories[this.state.step];
-    const winner: null | string = isWinner(curBoard);
+    const winner: null | string = this.state.winner;
 
     return (
       <div id="game-main">
         <div>
-          <input id="create-board" type="text" />
+          <input id="create-board" type="text" ref={this.textInput} />
           <input type="submit" value="board 생성" onClick={this.createBoard.bind(this)} />
         </div>
         <Board curBoard={curBoard} clickBoard={this.clickBoard.bind(this)} />
-        {/* <Board curBoard={this.state.winnerBoard} clickBoard={this.clickBoard.bind(this)} /> */}
         <div className="info">
           {winner ? `winner is ${winner}` : "Tic-Tac-Toe"}
           <HistoryButtons histories={this.state.histories} jumpHistory={this.jumpHistory.bind(this)} />
