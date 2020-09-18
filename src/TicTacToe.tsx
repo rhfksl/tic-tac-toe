@@ -1,58 +1,50 @@
-import React from "react";
-import Board from "./Board";
-import HistoryButtons from "./HistoryButtons";
-import { isWinner, isThisWinnerSpot } from "./functions";
-import { TicTacToeStates, CurBoard, Histories } from './Interface/Interface';
+import React, { useState, useRef, useContext } from "react";
+import { Board } from "./Board";
+import { HistoryButtons } from "./HistoryButtons";
+import { checkIsWinner, isThisWinnerSpot } from "./functions";
+import { CurBoard, Histories } from './Interface/Interface';
 import "./TicTacToe.css";
 import _ from "lodash";
+import { TicTacToeStore, TicTacToeContext } from './Context/TicTacToeStore';
+// console.log(TicTacToeStore);
 
+export const TicTacToe: React.FunctionComponent<{}> = () => {
 
-class TicTacToe extends React.Component<{}, TicTacToeStates> {
-  private textInput: React.RefObject<HTMLInputElement>;
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      histories: [ [Array(3).fill('#'), Array(3).fill('#'), Array(3).fill('#')] ],
-      isNextX: true,
-      step: 0,
-      playHistories: true,
-      winner: null,
-    };
-    this.textInput = React.createRef();
-  }
+  const [ histories, setHistories ] = useState<Histories>([ [Array(3).fill('#'), Array(3).fill('#'), Array(3).fill('#')] ]);
+  const [ isNextX, setIsNextX ] = useState<boolean>(true);
+  const [ step, setStep ] = useState<number>(0);
+  const [ winner, setWinner ] = useState<null | string>(null);
 
-  calculateWinnerPosition(board: CurBoard, otherUser: string): void{
-    for(let i = 0; i < board.length; i++){
-      for(let j = 0; j < board.length; j++){
-        if(!board[i][j] || board[i][j] === '#'){
-          if(isThisWinnerSpot(board, i, j, otherUser)){
-            board[i][j] = '#';
+  function calculateWinnerPosition (board: CurBoard, otherUser: string): void{
+    for(let row = 0; row < board.length; row++){
+      for(let col = 0; col < board.length; col++){
+        if(!board[row][col] || board[row][col] === '#'){
+          if(isThisWinnerSpot(board, row, col, otherUser)){
+            board[row][col] = '#';
           }else{
-            board[i][j] = null;
+            board[row][col] = null;
           }
         }
       }
     }
 
-    this.setState({
-      histories: [...this.state.histories, board],
-      isNextX: !this.state.isNextX,
-      step: this.state.step + 1,
-    });
-  }
+    setHistories([...histories, board]);
+    setIsNextX(!isNextX);
+    setStep(step + 1);
+  };
 
-  clickBoard (number: number): void {
+  function clickBoard (boardIdx: number): void {
     
-    if(this.state.winner){
+    if(winner){
       console.log('already winner exists');
       return;
     }
 
-    const cloneHistories: Histories = _.cloneDeep(this.state.histories).slice(0, this.state.step + 1);
-    const curBoard: CurBoard = _.cloneDeep(cloneHistories[this.state.step]);
+    const cloneHistories: Histories = _.cloneDeep(histories).slice(0, step + 1);
+    const curBoard: CurBoard = _.cloneDeep(cloneHistories[step]);
     const leng: number = curBoard.length;
-    const row: number = parseInt(String(number / leng));
-    const col: number = number % leng;
+    const row: number = parseInt(String(boardIdx / leng));
+    const col: number = boardIdx % leng;
     
 
     if (curBoard[row][col] === 'O' || curBoard[row][col] === 'X') {
@@ -60,54 +52,56 @@ class TicTacToe extends React.Component<{}, TicTacToeStates> {
       return;
     }
 
-    curBoard[row][col] = this.state.isNextX ? "X" : "O";
+    curBoard[row][col] = isNextX ? "X" : "O";
 
-    const curUser: string = this.state.isNextX ? "X" : 'O';
-    const otherUser: string = this.state.isNextX ? "O" : "X";
-    const winner: string | null = isWinner(curBoard, row, col, otherUser);
+    const curUser: string = isNextX ? "X" : 'O';
+    const otherUser: string = isNextX ? "O" : "X";
+    const isWinner: string | null = checkIsWinner(curBoard, row, col, otherUser);
 
-    if (winner) {
-      this.setState({histories: [...cloneHistories, curBoard], winner: winner, step: this.state.step + 1,});
+    if (isWinner) {
+      setHistories([...cloneHistories, curBoard]);
+      setWinner(isWinner);
+      setStep(step + 1);
       return;
     }
     // guess # position
-    this.calculateWinnerPosition(curBoard, curUser);
+    calculateWinnerPosition(curBoard, curUser);
   }
 
-  jumpHistory(step: number): void {
-    this.setState({
-      step: step,
-      isNextX: step % 2 === 0,
-    });
+  function jumpHistory(newStep: number): void {
+    setStep(newStep);
+    setIsNextX(newStep % 2 === 0);
   }
 
-  showHistories(): void {
-    this.setState({ playHistories: true }, () => {
-      const histories: Histories = this.state.histories;
+  // variable for controlling setinterval
+  const latestPlayHistories: React.MutableRefObject<boolean> = useRef<boolean>(true);
 
-      let count: number = this.state.step;
-      const end: number = histories.length - 1;
-      if(count === end){
-        count = 0;
+  function showHistories(): void {
+    latestPlayHistories.current = true;
+    
+    let count: number = step;
+    const end: number = histories.length - 1;
+
+    if(count === end){
+      count = 0;
+    }
+    const showHistories: NodeJS.Timeout = setInterval(() => {
+      if (count <= end && latestPlayHistories.current) {
+        jumpHistory(count);
+        count++;
+      } else {
+        clearInterval(showHistories);
       }
-
-      const showHistories: NodeJS.Timeout = setInterval(() => {
-        if (count <= end && this.state.playHistories) {
-          this.jumpHistory(count);
-          count++;
-        } else {
-          clearInterval(showHistories);
-        }
-      }, 300);
-    });
+    }, 500);
   }
 
-  stopHistories(): void {
-    this.setState({ playHistories: false });
+  function stopHistories(): void {
+    latestPlayHistories.current = false;
   }
 
-  createBoard(): void {
-    const inputValue: number | undefined = Number(this.textInput.current?.value);
+  const textInput = useRef<HTMLInputElement>(null);
+  function createBoard(): void {
+    const inputValue: number = Number(textInput.current?.value);
     let leng: number;
 
     if(!inputValue || isNaN(inputValue)){
@@ -121,31 +115,169 @@ class TicTacToe extends React.Component<{}, TicTacToeStates> {
     for (let i = 0; i < leng; i++) {
       newBoard.push(Array(leng).fill('#'));
     }
-    this.setState({ histories: [newBoard], step: 0, isNextX: true });
+    setHistories([newBoard]);
+    setStep(0);
+    setIsNextX(true);
+    setWinner(null);
   }
 
-  
+const curBoard: CurBoard = histories[step];
 
-  render(): JSX.Element {
-    const curBoard: CurBoard = this.state.histories[this.state.step];
-    const winner: null | string = this.state.winner;
-
-    return (
+  return (
+    <TicTacToeStore>
       <div id="game-main">
         <div>
-          <input id="create-board" type="text" ref={this.textInput} />
-          <input type="submit" value="board 생성" onClick={this.createBoard.bind(this)} />
+          <input id="create-board" type="text" ref={textInput} />
+          <input type="submit" value="board 생성" onClick={createBoard} />
+          <div>step: {step}</div>
+          <div>user: {isNextX ? 'X' : 'O'}</div>
+          <div>winner: {winner}</div>
         </div>
-        <Board curBoard={curBoard} clickBoard={this.clickBoard.bind(this)} />
+        <Board curBoard={curBoard} clickBoard={clickBoard} />
         <div className="info">
-          {winner ? `winner is ${winner}` : "Tic-Tac-Toe"}
-          <HistoryButtons histories={this.state.histories} jumpHistory={this.jumpHistory.bind(this)} />
+          Tic-Tac-Toe
+          <HistoryButtons histories={histories} jumpHistory={jumpHistory} />
         </div>
-        <button onClick={this.showHistories.bind(this)}>Play</button>
-        <button onClick={this.stopHistories.bind(this)}>Stop</button>
+        <button onClick={showHistories}>Play</button>
+        <button onClick={stopHistories}>Stop</button>
       </div>
-    );
-  }
+    </TicTacToeStore>
+  );
 }
 
-export default TicTacToe;
+// 기존
+// export const TicTacToe: React.FunctionComponent<{}> = () => {
+
+//   const [ histories, setHistories ] = useState<Histories>([ [Array(3).fill('#'), Array(3).fill('#'), Array(3).fill('#')] ]);
+//   const [ isNextX, setIsNextX ] = useState<boolean>(true);
+//   const [ step, setStep ] = useState<number>(0);
+//   const [ winner, setWinner ] = useState<null | string>(null);
+
+//   function calculateWinnerPosition (board: CurBoard, otherUser: string): void{
+//     for(let row = 0; row < board.length; row++){
+//       for(let col = 0; col < board.length; col++){
+//         if(!board[row][col] || board[row][col] === '#'){
+//           if(isThisWinnerSpot(board, row, col, otherUser)){
+//             board[row][col] = '#';
+//           }else{
+//             board[row][col] = null;
+//           }
+//         }
+//       }
+//     }
+
+//     setHistories([...histories, board]);
+//     setIsNextX(!isNextX);
+//     setStep(step + 1);
+//   };
+
+//   function clickBoard (boardIdx: number): void {
+    
+//     if(winner){
+//       console.log('already winner exists');
+//       return;
+//     }
+
+//     const cloneHistories: Histories = _.cloneDeep(histories).slice(0, step + 1);
+//     const curBoard: CurBoard = _.cloneDeep(cloneHistories[step]);
+//     const leng: number = curBoard.length;
+//     const row: number = parseInt(String(boardIdx / leng));
+//     const col: number = boardIdx % leng;
+    
+
+//     if (curBoard[row][col] === 'O' || curBoard[row][col] === 'X') {
+//       console.log("you already clicked this square");
+//       return;
+//     }
+
+//     curBoard[row][col] = isNextX ? "X" : "O";
+
+//     const curUser: string = isNextX ? "X" : 'O';
+//     const otherUser: string = isNextX ? "O" : "X";
+//     const isWinner: string | null = checkIsWinner(curBoard, row, col, otherUser);
+
+//     if (isWinner) {
+//       setHistories([...cloneHistories, curBoard]);
+//       setWinner(isWinner);
+//       setStep(step + 1);
+//       return;
+//     }
+//     // guess # position
+//     calculateWinnerPosition(curBoard, curUser);
+//   }
+
+//   function jumpHistory(newStep: number): void {
+//     setStep(newStep);
+//     setIsNextX(newStep % 2 === 0);
+//   }
+
+//   // variable for controlling setinterval
+//   const latestPlayHistories: React.MutableRefObject<boolean> = useRef<boolean>(true);
+
+//   function showHistories(): void {
+//     latestPlayHistories.current = true;
+    
+//     let count: number = step;
+//     const end: number = histories.length - 1;
+
+//     if(count === end){
+//       count = 0;
+//     }
+//     const showHistories: NodeJS.Timeout = setInterval(() => {
+//       if (count <= end && latestPlayHistories.current) {
+//         jumpHistory(count);
+//         count++;
+//       } else {
+//         clearInterval(showHistories);
+//       }
+//     }, 500);
+//   }
+
+//   function stopHistories(): void {
+//     latestPlayHistories.current = false;
+//   }
+
+//   const textInput = useRef<HTMLInputElement>(null);
+//   function createBoard(): void {
+//     const inputValue: number = Number(textInput.current?.value);
+//     let leng: number;
+
+//     if(!inputValue || isNaN(inputValue)){
+//       alert('알맞은 숫자를 입력해 주십시오');
+//       return;
+//     }else{
+//       leng = inputValue;
+//     }
+
+//     const newBoard: string[][] = [];
+//     for (let i = 0; i < leng; i++) {
+//       newBoard.push(Array(leng).fill('#'));
+//     }
+//     setHistories([newBoard]);
+//     setStep(0);
+//     setIsNextX(true);
+//     setWinner(null);
+//   }
+
+// const curBoard: CurBoard = histories[step];
+
+//   return (
+//     <div id="game-main">
+//       <div>
+//         <input id="create-board" type="text" ref={textInput} />
+//         <input type="submit" value="board 생성" onClick={createBoard} />
+//         <div>step: {step}</div>
+//         <div>user: {isNextX ? 'X' : 'O'}</div>
+//         <div>winner: {winner}</div>
+//       </div>
+//       <Board curBoard={curBoard} clickBoard={clickBoard} />
+//       <div className="info">
+//         Tic-Tac-Toe
+//         <HistoryButtons histories={histories} jumpHistory={jumpHistory} />
+//       </div>
+//       <button onClick={showHistories}>Play</button>
+//       <button onClick={stopHistories}>Stop</button>
+//     </div>
+//   );
+// }
+

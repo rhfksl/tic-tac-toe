@@ -1,23 +1,21 @@
 import React from "react";
 import  { HistoryButtonsProps } from './Interface/Interface';
 
+export const HistoryButtons: React.FunctionComponent<HistoryButtonsProps> = props => {
+  const { histories, jumpHistory } = props;
 
-class HistoryButtons extends React.Component<HistoryButtonsProps> {
-  render(): JSX.Element {
-    const historyButtons: JSX.Element[] = this.props.histories.map((_, step) => {
-      return (
-        <button key={step} onClick={this.props.jumpHistory.bind(this, step)}>
-          {step === 0 ? "game start" : `go to ${step} step`}
-        </button>
-      );
-    });
+  const historyButtons: JSX.Element[] = histories.map((_, step: number) => {
     return (
-      <div className="history">
-        Jump to history
-        <div className="history-button-box">{historyButtons}</div>
-      </div>
+      <button key={step} onClick={()=>{jumpHistory(step)}}>
+        {step === 0 ? "game start" : `go to ${step} step`}
+      </button>
     );
-  }
-}
+  });
 
-export default HistoryButtons;
+  return (
+    <div className="history">
+      Jump to history
+      <div className="history-button-box">{historyButtons}</div>
+    </div>
+  );
+}

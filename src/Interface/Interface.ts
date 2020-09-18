@@ -6,7 +6,6 @@ export interface TicTacToeStates{
   histories:Histories;
   isNextX: boolean;
   step: number;
-  playHistories: boolean;
   winner: null | string;
 }
 
