@@ -2,11 +2,25 @@ export type Histories = (null | string)[][][];
 
 export type CurBoard = (string|null)[][];
 
-export interface TicTacToeStates{
-  histories:Histories;
-  isNextX: boolean;
-  step: number;
-  winner: null | string;
+export type TicTacToeStates = {
+    histories:Histories;
+    isNextX: boolean;
+    step: number;
+    winner: null | string;
+}
+export interface TicTacToeStatesType{
+    TicTacToeStates: TicTacToeStates
+}
+export type dispatchArgs = {
+    type: string;
+    payload: TicTacToeStates
+}
+export interface TicTacToeContextType{
+    histories:Histories;
+    isNextX: boolean;
+    step: number;
+    winner: null | string;
+    dispatch(dispatchArgs: dispatchArgs): TicTacToeStatesType;
 }
 
 export interface HistoryButtonsProps{

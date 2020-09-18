@@ -2,31 +2,34 @@ import React, { useRef, useContext } from "react";
 import { Board } from "./Board";
 import { HistoryButtons } from "./HistoryButtons";
 import { checkIsWinner, isThisWinnerSpot } from "./functions";
-import { CurBoard, Histories } from './Interface/Interface';
+import { CurBoard, Histories, TicTacToeContextType } from './Interface/Interface';
 import "./TicTacToe.css";
 import _ from "lodash";
 import { TicTacToeContext } from './Context/TicTacToeStore';
+import { STRING_O, STRING_X, STRING_POUND_BUTTON, SET_TICTACTOE_STATES } from './Constans/Constans'
 
 export const TicTacToe: React.FunctionComponent<{}> = () => {
 
+  // why error we use set type to TicTacToeContextType
   const { histories, isNextX, step, winner, dispatch }: any = useContext(TicTacToeContext); 
 
-  function calculateWinnerPosition (board: CurBoard, otherUser: string): void{
+  // variable for controlling setinterval
+  const latestPlayHistories: React.MutableRefObject<boolean> = useRef<boolean>(true);
+  const textInput = useRef<HTMLInputElement>(null);
+
+  function calculateWinnerPosition (board: CurBoard, otherUser: string): CurBoard{
     for(let row = 0; row < board.length; row++){
       for(let col = 0; col < board.length; col++){
-        if(!board[row][col] || board[row][col] === '#'){
+        if(!board[row][col] || board[row][col] === STRING_POUND_BUTTON){
           if(isThisWinnerSpot(board, row, col, otherUser)){
-            board[row][col] = '#';
+            board[row][col] = STRING_POUND_BUTTON;
           }else{
             board[row][col] = null;
           }
         }
       }
-    }
-
-    dispatch({ type: 'SET_HISTORIES', payload: [...histories, board] });
-    dispatch({ type: 'SET_ISNEXTX', payload: !isNextX });
-    dispatch({ type: 'SET_STEP', payload: step + 1 });
+    }    
+    return board;
   };
 
   function clickBoard (boardIdx: number): void {
@@ -43,34 +46,31 @@ export const TicTacToe: React.FunctionComponent<{}> = () => {
     const col: number = boardIdx % leng;
     
 
-    if (curBoard[row][col] === 'O' || curBoard[row][col] === 'X') {
+    if (curBoard[row][col] === STRING_O || curBoard[row][col] === STRING_X) {
       console.log("you already clicked this square");
       return;
     }
 
-    curBoard[row][col] = isNextX ? "X" : "O";
+    curBoard[row][col] = isNextX ? STRING_X : STRING_O;
 
-    const curUser: string = isNextX ? "X" : 'O';
-    const otherUser: string = isNextX ? "O" : "X";
+    const curUser: string = isNextX ? STRING_X : STRING_O;
+    const otherUser: string = isNextX ? STRING_O : STRING_X;
     const isWinner: string | null = checkIsWinner(curBoard, row, col, otherUser);
 
     if (isWinner) {
-      dispatch({ type: 'SET_HISTORIES', payload: [ ...cloneHistories, curBoard ] });
-      dispatch({ type: 'SET_WINNER', payload: isWinner });
-      dispatch({ type: 'SET_STEP', payload: step + 1});
+    dispatch({ type: SET_TICTACTOE_STATES, payload: { histories: [ ...cloneHistories, curBoard ], isNextX: !isNextX, step: step + 1, winner: isWinner } });
       return;
     }
     // guess # position
-    calculateWinnerPosition(curBoard, curUser);
+    const newBoard: CurBoard = calculateWinnerPosition(curBoard, curUser);
+    dispatch({ type: SET_TICTACTOE_STATES, payload: { histories: [...cloneHistories, newBoard], isNextX: !isNextX, step: step + 1, winner: null } });
+
   }
 
   function jumpHistory(newStep: number): void {
-    dispatch({ type: 'SET_STEP', payload: newStep });
-    dispatch({ type: 'SET_ISNEXTX', payload: newStep % 2 === 0 });
-  }
+    dispatch({ type: SET_TICTACTOE_STATES, payload: { histories: histories, isNextX: newStep % 2 === 0, step: newStep, winner: winner } });
 
-  // variable for controlling setinterval
-  const latestPlayHistories: React.MutableRefObject<boolean> = useRef<boolean>(true);
+  }
 
   function showHistories(): void {
     latestPlayHistories.current = true;
@@ -95,7 +95,6 @@ export const TicTacToe: React.FunctionComponent<{}> = () => {
     latestPlayHistories.current = false;
   }
 
-  const textInput = useRef<HTMLInputElement>(null);
   function createBoard(): void {
     const inputValue: number = Number(textInput.current?.value);
     let leng: number;
@@ -109,13 +108,10 @@ export const TicTacToe: React.FunctionComponent<{}> = () => {
 
     const newBoard: string[][] = [];
     for (let i = 0; i < leng; i++) {
-      newBoard.push(Array(leng).fill('#'));
+      newBoard.push(Array(leng).fill(STRING_POUND_BUTTON));
     }
 
-    dispatch({ type: 'SET_HISTORIES', payload: [ newBoard ] });
-    dispatch({ type: 'SET_WINNER', payload: null });
-    dispatch({ type: 'SET_ISNEXTX', payload: true });
-    dispatch({ type: 'SET_STEP', payload: 0 }); 
+    dispatch({ type: SET_TICTACTOE_STATES, payload: { histories: [ newBoard ], isNextX: true, step: 0, winner: null } });
   }
 
 const curBoard: CurBoard = histories[step];
@@ -124,9 +120,9 @@ const curBoard: CurBoard = histories[step];
       <div id="game-main">
         <div>
           <input id="create-board" type="text" ref={textInput} />
-          <input type="submit" value="board 생성" onClick={createBoard} />
+          <button onClick={createBoard}>button 생성</button>
           <div>step: {step}</div>
-          <div>user: {isNextX ? 'X' : 'O'}</div>
+          <div>user: {isNextX ? STRING_X : STRING_O}</div>
           <div>winner: {winner}</div>
         </div>
         <Board curBoard={curBoard} clickBoard={clickBoard} />
