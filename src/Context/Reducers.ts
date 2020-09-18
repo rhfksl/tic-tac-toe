@@ -12,27 +12,23 @@ export const Reducer = function(state: any, action: any){
         case 'SET_HISTORIES':
           return {
               ...state,
-              histories: [...state.histories, action.payload]
+              histories: action.payload
           }
-          break;
         case 'SET_ISNEXTX':
             return {
                 ...state,
                 isNextX: action.payload
             }
-            break;
         case 'SET_STEP':
             return {
                 ...state,
                 step: action.payload
             }
-            break;
         case 'SET_WINNER':
             return {
                 ...state,
                 winner: action.payload
             }
-          break;
         default:
           return initialState;
       }

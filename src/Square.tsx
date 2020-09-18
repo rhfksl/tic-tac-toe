@@ -2,7 +2,6 @@ import React from "react";
 import shortid from "shortid";
 import { SquareProps } from './Interface/Interface';
 
-
 export const Square: React.FunctionComponent<SquareProps> = props => {
   const { row, rowIdx, clickBoard } = props;
   

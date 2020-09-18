@@ -1,5 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { TicTacToe } from "./TicTacToe";
+import { App } from './App';
 
-ReactDOM.render(<TicTacToe />, document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById("root"));

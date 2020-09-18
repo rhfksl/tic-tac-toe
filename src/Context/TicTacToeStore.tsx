@@ -1,7 +1,7 @@
 import React, { useReducer } from 'react';
 import { Reducer, initialState } from './Reducers';
 
-export const TicTacToeContext = React.createContext(initialState);
+export const TicTacToeContext = React.createContext('');
 
 export const TicTacToeStore = function(props: any){
     const [ TicTacToeStates, dispatch ] = useReducer(Reducer, initialState);
