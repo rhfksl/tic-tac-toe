@@ -1,6 +1,6 @@
-import { TicTacToeStates } from '../Interface/Interface';
+import { TicTacToeStatesType } from '../Interface/Interface';
 
-export const initialState: TicTacToeStates = {
+export const initialState: TicTacToeStatesType = {
     histories: [ [Array(3).fill('#'), Array(3).fill('#'), Array(3).fill('#')] ],
     isNextX: true,
     step: 0,

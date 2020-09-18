@@ -1,15 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Square } from "./Square";
 import shortid from "shortid";
 import { BoardProps } from './Interface/Interface';
-import { TicTacToeContext } from './Context/TicTacToeStore';
 
 export const Board: React.FunctionComponent<BoardProps> = props => {
-  const { curBoard, clickBoard } = props;
-  // const { clickBoard } = props;
-  // const { histories, step, dispatch }: any = useContext(TicTacToeContext);
-  // const curBoard = histories[step];
-  
+  const { curBoard, clickBoard } = props;  
     
   return (
           <div className="board">

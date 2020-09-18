@@ -2,7 +2,7 @@ export type Histories = (null | string)[][][];
 
 export type CurBoard = (string|null)[][];
 
-export interface TicTacToeStates{
+export interface TicTacToeStatesType{
   histories:Histories;
   isNextX: boolean;
   step: number;
