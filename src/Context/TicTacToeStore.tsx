@@ -1,14 +1,15 @@
 import React, { useReducer } from 'react';
 import { Reducer, initialState } from './Reducers';
+import { TicTacToeContextType } from '../Interface/Interface';
 
-export const TicTacToeContext = React.createContext('');
+export const TicTacToeContext = React.createContext<TicTacToeContextType>({...initialState.TicTacToeStates, dispatch: ()=> {}});
 
-export const TicTacToeStore = function(props: any){
+export const TicTacToeStore: React.FunctionComponent<{}> = function(props){
+    
     const [ states, dispatch ] = useReducer(Reducer, initialState);
-    const { histories, isNextX, step, winner }: any = states.TicTacToeStates;
-    const value: any = { histories, isNextX, step, winner, dispatch };
+    const { histories, isNextX, step, winner } = states.TicTacToeStates;
     return (
-        <TicTacToeContext.Provider value={value}>
+        <TicTacToeContext.Provider value={{ histories, isNextX, step, winner, dispatch }}>
             {props.children}
         </TicTacToeContext.Provider>
     )

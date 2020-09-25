@@ -8,33 +8,33 @@ export type TicTacToeStates = {
     step: number;
     winner: null | string;
 }
-export interface TicTacToeStatesType{
+export interface StoreType{
     TicTacToeStates: TicTacToeStates
 }
-export type dispatchArgs = {
-    type: string;
-    payload: TicTacToeStates
-}
+
 export interface TicTacToeContextType{
     histories:Histories;
     isNextX: boolean;
     step: number;
     winner: null | string;
-    dispatch(dispatchArgs: dispatchArgs): TicTacToeStatesType;
+    dispatch(action: ActionType): void;
 }
 
-export interface HistoryButtonsProps{
-    histories: Histories;
-    jumpHistory(step: number): void;
+export type ActionType = {
+    type: string;
+    payload: TicTacToeStates;
 }
 
-export interface BoardProps{
-    clickBoard(step: number): void;
-    curBoard: CurBoard;
-}
+// export interface HistoryButtonsProps{
+//     histories: Histories;
+//     jumpHistory(step: number): void;
+// }
+
+// export interface BoardProps{
+//     curBoard: CurBoard;
+// }
 
 export interface SquareProps{
-    clickBoard(step: number): void;
     row: (string|null)[];
     rowIdx: number;
 }

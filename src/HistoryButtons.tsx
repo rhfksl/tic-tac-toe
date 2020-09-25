@@ -1,8 +1,14 @@
-import React from "react";
-import  { HistoryButtonsProps } from './Interface/Interface';
+import React, { useContext } from "react";
+import { TicTacToeContext } from './Context/TicTacToeStore';
+import { SET_TICTACTOE_STATES } from './Constans/Constans';
 
-export const HistoryButtons: React.FunctionComponent<HistoryButtonsProps> = props => {
-  const { histories, jumpHistory } = props;
+export const HistoryButtons: React.FunctionComponent<{}> = () => {
+  // const { jumpHistory } = props;
+  const { histories, winner, dispatch } = useContext(TicTacToeContext);
+
+  function jumpHistory(newStep: number): void {
+    dispatch({ type: SET_TICTACTOE_STATES, payload: { histories: histories, isNextX: newStep % 2 === 0, step: newStep, winner: winner } });
+  }
 
   const historyButtons: JSX.Element[] = histories.map((_, step: number) => {
     return (

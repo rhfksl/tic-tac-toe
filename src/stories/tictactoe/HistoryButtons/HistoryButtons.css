@@ -1,0 +1,16 @@
+button + button{
+    margin-left: 0;
+}
+.history{
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.history-button-box{
+    display: flex;
+    flex-direction: column;
+}
+
+.button-size-small { width: 100px; height: 30px; }
+.button-size-medium { width: 150px; height: 50px; }
+.button-size-large { width: 200px; height: 80px; }

@@ -1,0 +1,6 @@
+.board{
+    width: 50%;
+    margin: 100px auto 0px auto;
+    display: flex;
+    flex-direction: column;
+}
